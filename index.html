@@ -6,6 +6,625 @@
 'use strict';
 const KEY='mimi-v1';const today=()=>new Date().toLocaleDateString('sv-SE');let state={profile:{age:'',height:'',weight:'',activity:'normal',allergies:''},entries:[],onboarded:false};let screen='home',date=today(),nutrient='protein',foodSearch='',foodCategory='all',month=new Date().toISOString().slice(0,7),editId=null,pendingPhoto=null;const foods=[
 {name:'卵',emoji:'🥚',group:'protein',desc:'たんぱく質などを含む。朝食にも便利',tags:['protein','fat','iron']},{name:'鶏むね肉',emoji:'🍗',group:'protein',desc:'主菜に取り入れやすい',tags:['protein']},{name:'納豆',emoji:'🫘',group:'protein',desc:'たんぱく質・食物繊維・鉄など',tags:['protein','fiber','iron']},{name:'ヨーグルト',emoji:'🥣',group:'protein',desc:'種類によってカルシウムやたんぱく質を含む',tags:['protein','calcium']},{name:'鮭',emoji:'🐟',group:'protein',desc:'たんぱく質と脂質を含む',tags:['protein','fat']},{name:'豆腐',emoji:'⬜',group:'protein',desc:'たんぱく質を摂れる大豆食品',tags:['protein','calcium']},{name:'牛乳',emoji:'🥛',group:'dairy',desc:'カルシウムを含む',tags:['calcium','protein']},{name:'チーズ',emoji:'🧀',group:'dairy',desc:'カルシウムとたんぱく質',tags:['calcium','protein','fat']},{name:'ごはん',emoji:'🍚',group:'staple',desc:'毎日のエネルギーになる主食',tags:['carb']},{name:'食パン',emoji:'🍞',group:'staple',desc:'卵や乳製品と組み合わせやすい',tags:['carb']},{name:'オートミール',emoji:'🌾',group:'staple',desc:'炭水化物と食物繊維を含む',tags:['carb','fiber']},{name:'さつまいも',emoji:'🍠',group:'staple',desc:'食物繊維も含む',tags:['carb','fiber']},{name:'りんご',emoji:'🍎',group:'fruit',desc:'果物として食物繊維などを摂れる',tags:['carb','fiber']},{name:'みかん',emoji:'🍊',group:'fruit',desc:'ビタミンCを含む果物',tags:['carb','vitamin']},{name:'小松菜',emoji:'🥬',group:'veg',desc:'カルシウムや鉄などを含む',tags:['calcium','iron','fiber']},{name:'ブロッコリー',emoji:'🥦',group:'veg',desc:'ビタミンCや食物繊維を含む',tags:['fiber','vitamin']},{name:'きのこ',emoji:'🍄',group:'veg',desc:'料理に足しやすい食物繊維',tags:['fiber']},{name:'赤身肉',emoji:'🥩',group:'protein',desc:'鉄やたんぱく質を含む',tags:['iron','protein']},{name:'あさり',emoji:'🐚',group:'protein',desc:'鉄などを含む貝類',tags:['iron','protein']},{name:'アボカド',emoji:'🥑',group:'fruit',desc:'脂質や食物繊維を含む',tags:['fat','fiber']},{name:'くるみ',emoji:'🌰',group:'other',desc:'脂質を含む。ナッツアレルギーに注意',tags:['fat','fiber']},{name:'オリーブオイル',emoji:'🫒',group:'other',desc:'料理に使う油脂のひとつ',tags:['fat']}];
+foods.push(...[
+  {
+    "name": "玄米",
+    "emoji": "🌾",
+    "group": "staple",
+    "desc": "食物繊維を含む主食",
+    "tags": [
+      "carb",
+      "fiber"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "もち",
+    "emoji": "🍡",
+    "group": "staple",
+    "desc": "もち米から作る主食",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "餅"
+  },
+  {
+    "name": "うどん",
+    "emoji": "🍜",
+    "group": "staple",
+    "desc": "小麦粉から作る麺",
+    "tags": [
+      "carb"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "そば",
+    "emoji": "🍜",
+    "group": "staple",
+    "desc": "そば粉を使った麺。原材料は商品によって異なる",
+    "tags": [
+      "carb",
+      "protein"
+    ],
+    "aliases": "蕎麦"
+  },
+  {
+    "name": "そうめん",
+    "emoji": "🍜",
+    "group": "staple",
+    "desc": "小麦粉から作る細い麺",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "素麺"
+  },
+  {
+    "name": "中華麺",
+    "emoji": "🍜",
+    "group": "staple",
+    "desc": "ラーメンや焼きそばに使う麺",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "ラーメン 焼きそば"
+  },
+  {
+    "name": "パスタ",
+    "emoji": "🍝",
+    "group": "staple",
+    "desc": "小麦を使う主食",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "スパゲッティ"
+  },
+  {
+    "name": "じゃがいも",
+    "emoji": "🥔",
+    "group": "staple",
+    "desc": "でんぷんやビタミンCを含む",
+    "tags": [
+      "carb",
+      "vitamin"
+    ],
+    "aliases": "ジャガイモ"
+  },
+  {
+    "name": "とうもろこし",
+    "emoji": "🌽",
+    "group": "staple",
+    "desc": "炭水化物や食物繊維を含む",
+    "tags": [
+      "carb",
+      "fiber"
+    ],
+    "aliases": "コーン"
+  },
+  {
+    "name": "鶏もも肉",
+    "emoji": "🍗",
+    "group": "protein",
+    "desc": "たんぱく質を含む。皮の有無で脂質量が変わる",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "とりもも"
+  },
+  {
+    "name": "豚ロース",
+    "emoji": "🥩",
+    "group": "protein",
+    "desc": "たんぱく質やビタミンB1を含む",
+    "tags": [
+      "protein",
+      "vitamin",
+      "fat"
+    ],
+    "aliases": "豚肉"
+  },
+  {
+    "name": "豚バラ肉",
+    "emoji": "🥩",
+    "group": "protein",
+    "desc": "たんぱく質と脂質を含む",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "豚肉"
+  },
+  {
+    "name": "牛もも肉",
+    "emoji": "🥩",
+    "group": "protein",
+    "desc": "たんぱく質や鉄を含む",
+    "tags": [
+      "protein",
+      "iron"
+    ],
+    "aliases": "牛肉"
+  },
+  {
+    "name": "ひき肉",
+    "emoji": "🍖",
+    "group": "protein",
+    "desc": "たんぱく質を含む。脂質量は原料や部位による",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "挽き肉 ミンチ"
+  },
+  {
+    "name": "さば",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "たんぱく質やEPA・DHAを含む",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "サバ 鯖"
+  },
+  {
+    "name": "いわし",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "たんぱく質やEPA・DHAを含む",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "イワシ 鰯"
+  },
+  {
+    "name": "あじ",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "焼き魚やフライに使われる魚",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "アジ 鯵"
+  },
+  {
+    "name": "まぐろ",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "たんぱく質を含む。脂質量は部位で異なる",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "マグロ 鮪"
+  },
+  {
+    "name": "ツナ缶",
+    "emoji": "🥫",
+    "group": "protein",
+    "desc": "たんぱく質を含む。油漬けと水煮で脂質量が異なる",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "シーチキン"
+  },
+  {
+    "name": "たら",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "鍋や蒸し料理に使われる白身魚",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "タラ 鱈"
+  },
+  {
+    "name": "しらす",
+    "emoji": "🐟",
+    "group": "protein",
+    "desc": "たんぱく質やカルシウムを含む",
+    "tags": [
+      "protein",
+      "calcium"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "えび",
+    "emoji": "🦐",
+    "group": "protein",
+    "desc": "たんぱく質を含む甲殻類",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "エビ 海老"
+  },
+  {
+    "name": "いか",
+    "emoji": "🦑",
+    "group": "protein",
+    "desc": "たんぱく質を含む魚介類",
+    "tags": [
+      "protein"
+    ],
+    "aliases": "イカ 烏賊"
+  },
+  {
+    "name": "油揚げ",
+    "emoji": "🟨",
+    "group": "protein",
+    "desc": "豆腐を揚げた食品",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "あぶらあげ"
+  },
+  {
+    "name": "厚揚げ",
+    "emoji": "🟨",
+    "group": "protein",
+    "desc": "表面を揚げた豆腐",
+    "tags": [
+      "protein",
+      "fat"
+    ],
+    "aliases": "あつあげ"
+  },
+  {
+    "name": "枝豆",
+    "emoji": "🫛",
+    "group": "protein",
+    "desc": "たんぱく質と食物繊維を含む",
+    "tags": [
+      "protein",
+      "fiber"
+    ],
+    "aliases": "えだまめ"
+  },
+  {
+    "name": "豆乳",
+    "emoji": "🥛",
+    "group": "protein",
+    "desc": "大豆から作られ、たんぱく質を含む",
+    "tags": [
+      "protein"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "キャベツ",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "ビタミンCや食物繊維を含む",
+    "tags": [
+      "vitamin",
+      "fiber"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "白菜",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "鍋やスープに使いやすい野菜",
+    "tags": [
+      "vitamin"
+    ],
+    "aliases": "はくさい"
+  },
+  {
+    "name": "レタス",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "サラダやサンドイッチに使われる葉物野菜",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "ほうれん草",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "葉酸や鉄などを含む",
+    "tags": [
+      "vitamin",
+      "iron"
+    ],
+    "aliases": "ほうれんそう"
+  },
+  {
+    "name": "にんじん",
+    "emoji": "🥕",
+    "group": "veg",
+    "desc": "体内でビタミンAに変わるβカロテンを含む",
+    "tags": [
+      "vitamin",
+      "fiber"
+    ],
+    "aliases": "人参 ニンジン"
+  },
+  {
+    "name": "玉ねぎ",
+    "emoji": "🧅",
+    "group": "veg",
+    "desc": "炒め物や煮物に使われる野菜",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "たまねぎ タマネギ"
+  },
+  {
+    "name": "大根",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "ビタミンCなどを含む根菜",
+    "tags": [
+      "vitamin"
+    ],
+    "aliases": "だいこん"
+  },
+  {
+    "name": "きゅうり",
+    "emoji": "🥒",
+    "group": "veg",
+    "desc": "水分が多く、和え物などに使われる",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "キュウリ 胡瓜"
+  },
+  {
+    "name": "トマト",
+    "emoji": "🍅",
+    "group": "veg",
+    "desc": "ビタミンCなどを含む",
+    "tags": [
+      "vitamin"
+    ],
+    "aliases": "ミニトマト"
+  },
+  {
+    "name": "ピーマン",
+    "emoji": "🫑",
+    "group": "veg",
+    "desc": "ビタミンCを含む",
+    "tags": [
+      "vitamin"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "なす",
+    "emoji": "🍆",
+    "group": "veg",
+    "desc": "炒め物や煮物に使われる野菜",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "ナス 茄子"
+  },
+  {
+    "name": "かぼちゃ",
+    "emoji": "🎃",
+    "group": "veg",
+    "desc": "βカロテンや炭水化物を含む",
+    "tags": [
+      "vitamin",
+      "carb",
+      "fiber"
+    ],
+    "aliases": "カボチャ 南瓜"
+  },
+  {
+    "name": "もやし",
+    "emoji": "🌱",
+    "group": "veg",
+    "desc": "炒め物やスープに使われる発芽野菜",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "ごぼう",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "食物繊維を含む根菜",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "ゴボウ 牛蒡"
+  },
+  {
+    "name": "れんこん",
+    "emoji": "🥬",
+    "group": "veg",
+    "desc": "食物繊維やビタミンCを含む",
+    "tags": [
+      "fiber",
+      "vitamin"
+    ],
+    "aliases": "レンコン 蓮根"
+  },
+  {
+    "name": "しめじ",
+    "emoji": "🍄",
+    "group": "veg",
+    "desc": "食物繊維を含むきのこ",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "ぶなしめじ"
+  },
+  {
+    "name": "えのき",
+    "emoji": "🍄",
+    "group": "veg",
+    "desc": "汁物や鍋にも使えるきのこ",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "えのきたけ"
+  },
+  {
+    "name": "しいたけ",
+    "emoji": "🍄",
+    "group": "veg",
+    "desc": "食物繊維を含む。生と乾燥品では成分量が異なる",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "椎茸"
+  },
+  {
+    "name": "わかめ",
+    "emoji": "🌿",
+    "group": "veg",
+    "desc": "食物繊維を含む海藻",
+    "tags": [
+      "fiber"
+    ],
+    "aliases": "ワカメ"
+  },
+  {
+    "name": "焼きのり",
+    "emoji": "🌿",
+    "group": "veg",
+    "desc": "おにぎりなどに使う海藻",
+    "tags": [
+      "fiber",
+      "vitamin"
+    ],
+    "aliases": "海苔"
+  },
+  {
+    "name": "バナナ",
+    "emoji": "🍌",
+    "group": "fruit",
+    "desc": "炭水化物やカリウムを含む",
+    "tags": [
+      "carb"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "いちご",
+    "emoji": "🍓",
+    "group": "fruit",
+    "desc": "ビタミンCを含む",
+    "tags": [
+      "vitamin"
+    ],
+    "aliases": "苺 イチゴ"
+  },
+  {
+    "name": "キウイ",
+    "emoji": "🥝",
+    "group": "fruit",
+    "desc": "ビタミンCや食物繊維を含む",
+    "tags": [
+      "vitamin",
+      "fiber"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "ぶどう",
+    "emoji": "🍇",
+    "group": "fruit",
+    "desc": "糖質を含む果物",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "ブドウ 葡萄"
+  },
+  {
+    "name": "梨",
+    "emoji": "🍐",
+    "group": "fruit",
+    "desc": "水分が多い果物",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "なし ナシ"
+  },
+  {
+    "name": "桃",
+    "emoji": "🍑",
+    "group": "fruit",
+    "desc": "水分と炭水化物を含む果物",
+    "tags": [
+      "carb"
+    ],
+    "aliases": "もも モモ"
+  },
+  {
+    "name": "アーモンド",
+    "emoji": "🌰",
+    "group": "other",
+    "desc": "脂質、食物繊維、ビタミンEを含む",
+    "tags": [
+      "fat",
+      "fiber",
+      "vitamin"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "ごま",
+    "emoji": "🌱",
+    "group": "other",
+    "desc": "脂質やカルシウムを含む",
+    "tags": [
+      "fat",
+      "calcium"
+    ],
+    "aliases": "胡麻 ゴマ"
+  },
+  {
+    "name": "バター",
+    "emoji": "🧈",
+    "group": "dairy",
+    "desc": "乳脂肪を主成分とする食品",
+    "tags": [
+      "fat"
+    ],
+    "aliases": ""
+  },
+  {
+    "name": "ごま油",
+    "emoji": "🫒",
+    "group": "other",
+    "desc": "ごまから作る油",
+    "tags": [
+      "fat"
+    ],
+    "aliases": "胡麻油"
+  },
+  {
+    "name": "菜種油",
+    "emoji": "🫒",
+    "group": "other",
+    "desc": "菜種から作る油",
+    "tags": [
+      "fat"
+    ],
+    "aliases": "キャノーラ油"
+  }
+]);
+const foodAliases={"卵":"たまご 玉子 タマゴ","ごはん":"白米 米 ご飯 ライス","鮭":"さけ しゃけ サケ シャケ サーモン","鶏むね肉":"鶏胸肉 とりむね 鶏肉","食パン":"パン","牛乳":"ミルク","豆腐":"とうふ","りんご":"リンゴ 林檎","みかん":"ミカン 蜜柑","さつまいも":"サツマイモ 薩摩芋"};
+function searchKey(value){return value.normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96));}
+function matchingFoods(query, selectedNutrient){
+  const words=searchKey(query).trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return foods.filter(food=>food.tags.includes(selectedNutrient));
+  return foods.filter(food=>{
+    const keywords=searchKey([food.name,food.aliases,foodAliases[food.name]].filter(Boolean).join(' '));
+    return words.every(word=>keywords.includes(word));
+  });
+}
 const nutrients={protein:{label:'たんぱく質',icon:'🥚',about:'筋肉・皮膚・髪など、体をつくる材料になるよ。',hint:'卵、魚、肉、豆製品、乳製品など、いろいろな食品を組み合わせよう。'},fat:{label:'脂質',icon:'🥑',about:'細胞やホルモンの材料になり、エネルギーにもなるよ。',hint:'魚、ナッツ、油などにも脂質が含まれるよ。脂質をゼロにする必要はないよ。'},carb:{label:'炭水化物',icon:'🍙',about:'勉強や運動など、体を動かすための大切なエネルギー源。',hint:'ごはん、パン、麺、いもなどの主食を無理に抜かないでね。'},fiber:{label:'食物繊維',icon:'🥦',about:'腸の働きやお通じを支えるよ。',hint:'野菜、果物、豆、きのこ、穀物をいろいろ食べてみよう。'},calcium:{label:'カルシウム',icon:'🥛',about:'骨や歯を育てるために重要な栄養素だよ。',hint:'乳製品、小松菜、豆腐などから摂れるよ。'},iron:{label:'鉄',icon:'🥬',about:'血液のヘモグロビンの材料。特に成長期は大切だよ。',hint:'赤身肉や貝類、大豆製品、青菜などに含まれるよ。'},vitamin:{label:'ビタミン',icon:'🍊',about:'体の調子を整えるさまざまな役割があるよ。',hint:'野菜や果物など、色々な食品を取り入れてみよう。'}};
 function h(s){return String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}function attr(s){return h(s)}function uid(){return crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())}function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){notify('保存容量に達した可能性があるよ。バックアップを確認してね')}}function load(){try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&old.profile&&Array.isArray(old.entries))state={...state,...old}}catch(e){}}function notify(s){const t=document.querySelector('#toast');t.textContent=s;t.classList.remove('hidden');clearTimeout(notify.timer);notify.timer=setTimeout(()=>t.classList.add('hidden'),2800)}function shell(title,sub){return `<div class="headrow"><div><h1 style="margin:0">${title}</h1>${sub?`<span class="small">${sub}</span>`:''}</div></div>`}function girl(){return `<img class="girl" src="character.webp" alt="アッシュブルーのボブヘアでピースする女の子" decoding="async">`}function nav(){const a=[['home','⌂','ホーム'],['food','✎','記録'],['nutrition','♡','栄養'],['calendar','▦','カレンダー'],['profile','♙','設定']];document.querySelector('#nav').innerHTML=a.map(x=>`<button data-nav="${x[0]}" class="${screen===x[0]?'active':''}"><span class="symbol">${x[1]}</span>${x[2]}</button>`).join('')}function goto(x){screen=x;render();scrollTo({top:0,behavior:'instant'})}function entriesDay(d){return state.entries.filter(x=>x.date===d).sort((a,b)=>(b.created||'').localeCompare(a.created||''))}function dayLabel(d){let v=new Date(d+'T12:00:00');return `${v.getMonth()+1}月${v.getDate()}日`}
 function home(){let recent=entriesDay(today());return `<div class="hero"><div class="intro"><div class="eyebrow">MY WELLNESS DIARY ♡</div><h1>${state.profile.name?h(state.profile.name):'あなた'}、<br>今日もおつかれさま♡</h1><p>無理せず、自分のペースで。<br>食べることも休むことも大切だよ。</p></div>${girl()}</div><div class="grid">${[['food','🍽','食事記録','写真とメモで残そう'],['nutrition','📖','栄養図鑑','食べ物の栄養を知ろう'],['activity','👟','運動記録','今日の活動を残そう'],['sleep','🌙','睡眠記録','眠りのリズムを確認'],['mood','💗','体調・気分','心と体の調子を記録'],['calendar','🗓','カレンダー','日々の記録を振り返る']].map(x=>`<button class="tile" data-nav="${x[0]}"><span class="ico">${x[1]}</span><strong>${x[2]}</strong><span>${x[3]}</span></button>`).join('')}</div><div class="sectiontitle section"><h2 style="margin:0">今日のノート ♡</h2><span class="pill">${recent.length}件の記録</span></div>${recent.length?`<div class="list">${recent.slice(0,4).map(renderEntry).join('')}</div>`:`<div class="card empty">まだ記録がないよ 🌷<br>気が向いたときに、今日のことを残してみよう。</div>`}<div class="tip section">毎日記録できなくても大丈夫。体調が悪い日は休んでね。数字を減らすことより、健康に過ごすことを大切にしよう♡</div>`}
@@ -14,7 +633,7 @@ function dateHeader(){return `<div class="headrow"><div><h1 style="margin:0">毎
 function activity(){let es=entriesDay(date).filter(x=>x.type==='activity');return `${dateHeader()}<div class="floatbar"><button class="primary" data-open="activity">＋ 活動を記録</button></div><div class="card"><h3>いつもの動きも活動だよ 👟</h3><p class="small">通学・お散歩・部活・ストレッチ。休んだ日も大事な記録だよ。</p></div>${es.length?`<div class="list">${es.map(renderEntry).join('')}</div>`:`<div class="card empty">今日動いたことや休んだことを残してみよう。</div>`}`}
 function sleep(){let es=entriesDay(date).filter(x=>x.type==='sleep');return `${dateHeader()}<div class="floatbar"><button class="primary" data-open="sleep">＋ 睡眠を記録</button></div><div class="card"><h3>おやすみ日記 🌙</h3><p class="small">寝た時間と起きた時間、眠りの満足度を記録してみよう。寝る時間を競う必要はないよ。</p></div>${es.length?`<div class="list">${es.map(renderEntry).join('')}</div>`:`<div class="card empty">睡眠の記録はまだないよ。</div>`}`}
 function mood(){let es=entriesDay(date).filter(x=>x.type==='mood');return `${dateHeader()}<div class="floatbar"><button class="primary" data-open="mood">＋ 体調・気分を記録</button></div><div class="card"><h3>今日はどんな気分？ 💗</h3><p class="small">元気な日も疲れた日も、そのまま記録していいんだよ。</p></div>${es.length?`<div class="list">${es.map(renderEntry).join('')}</div>`:`<div class="card empty">今日の気分を残してみよう。</div>`}`}
-function nutrition(){let n=nutrients[nutrient],arr=foods.filter(x=>x.tags.includes(nutrient)&&(!foodSearch||x.name.includes(foodSearch)||x.desc.includes(foodSearch)));return `${shell('栄養図鑑 ♡','食べ物のこと、少しずつ知ろう')}<div class="card"><div class="chips">${Object.entries(nutrients).map(([k,v])=>`<button class="chip ${nutrient===k?'selected':''}" data-nutrient="${k}">${v.icon} ${v.label}</button>`).join('')}</div></div><div class="card"><h2>${n.icon} ${n.label}</h2><p>${n.about}</p><div class="tip">${n.hint}</div></div><div class="field"><label for="foodsearch">食品を探す</label><input id="foodsearch" autocomplete="off" placeholder="例：納豆、卵、りんご" value="${attr(foodSearch)}"></div><div class="foodgrid">${arr.length?arr.map(f=>`<div class="foodcard"><span class="foodemoji">${f.emoji}</span><strong>${f.name}</strong><p>${f.desc}</p><button class="ghost" style="text-align:left;padding:0;font-size:12px" data-foodname="${f.name}">詳しく見る ›</button></div>`).join(''):`<div class="empty">該当する食品が見つからなかったよ。</div>`}</div><div class="card section"><h3>年齢別の栄養ガイド</h3>${profileGuide()}<p class="notice">掲載食品は代表例で、栄養素の含有量ランキングではないよ。食事の栄養量は品種・調理・分量で変わるので、写真だけから数値は算出しないよ。</p></div>`}
+function nutrition(){let n=nutrients[nutrient],arr=matchingFoods(foodSearch,nutrient);return `${shell('栄養図鑑 ♡','食べ物のこと、少しずつ知ろう')}<div class="card"><div class="chips">${Object.entries(nutrients).map(([k,v])=>`<button class="chip ${nutrient===k?'selected':''}" data-nutrient="${k}">${v.icon} ${v.label}</button>`).join('')}</div></div><div class="card"><h2>${n.icon} ${n.label}</h2><p>${n.about}</p><div class="tip">${n.hint}</div></div><div class="field"><label for="foodsearch">食品を探す</label><input id="foodsearch" autocomplete="off" placeholder="例：納豆、卵、りんご" value="${attr(foodSearch)}"></div><p class="small">${foodSearch.trim()?`全栄養素から ${arr.length}件`:`${arr.length}件`}</p><div class="foodgrid">${arr.length?arr.map(f=>`<div class="foodcard"><span class="foodemoji">${f.emoji}</span><strong>${f.name}</strong><p>${f.desc}</p><button class="ghost" style="text-align:left;padding:0;font-size:12px" data-foodname="${f.name}">詳しく見る ›</button></div>`).join(''):`<div class="empty">該当する食品が見つからなかったよ。</div>`}</div><div class="card section"><h3>年齢別の栄養ガイド</h3>${profileGuide()}<p class="notice">掲載食品は代表例で、栄養素の含有量ランキングではないよ。食事の栄養量は品種・調理・分量で変わるので、写真だけから数値は算出しないよ。成分量を調べるときは<a href="https://fooddb.mext.go.jp/" target="_blank" rel="noopener noreferrer">文部科学省の食品成分データベース</a>を見てね。</p></div>`}
 function profileGuide(){let age=Number(state.profile.age),ageband=age>=12&&age<=14?'12〜14歳':age>=15&&age<=17?'15〜17歳':null;if(!ageband)return `<p class="small">プロフィールに年齢を登録すると、成長期に必要な栄養の一般的な情報が見られるよ。</p>`;return `<div class="row between"><span class="pill">${ageband}女子・一般的な参考</span></div><p class="small" style="margin-top:9px">たんぱく質の推奨量：<b>55g/日</b><br>脂質：エネルギーの<b>20〜30%</b><br>炭水化物：エネルギーの<b>50〜65%</b></p><p class="notice">厚生労働省「日本人の食事摂取基準（2025年版）」を参考にした集団向けの値。個人の減量目標・摂取上限ではないよ。</p>`}
 function calendar(){let [y,m]=month.split('-').map(Number),first=(new Date(y,m-1,1).getDay()),count=new Date(y,m,0).getDate(),marked=new Set(state.entries.map(x=>x.date));return `${shell('カレンダー ♡','毎日じゃなくても、自分のペースで')}<div class="card"><div class="headrow"><button class="secondary" data-month="-1">‹</button><strong>${y}年 ${m}月</strong><button class="secondary" data-month="1">›</button></div><div class="calendar">${['日','月','火','水','木','金','土'].map(x=>`<div class="calday">${x}</div>`).join('')}${Array.from({length:first},()=>'<div></div>').join('')}${Array.from({length:count},(_,i)=>{let d=`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;return `<button class="calcell ${d===today()?'today':''} ${d===date?'selected':''} ${marked.has(d)?'dot':''}" data-day="${d}">${i+1}</button>`}).join('')}</div></div><div class="sectiontitle section"><h2 style="margin:0">${dayLabel(date)}の記録</h2><span class="pill">${entriesDay(date).length}件</span></div>${entriesDay(date).length?`<div class="list">${entriesDay(date).map(renderEntry).join('')}</div>`:`<div class="card empty">この日は記録がないよ。空白の日があっても大丈夫♡</div>`}<p class="small">睡眠・食事・活動・体調の記録を日付ごとに振り返れるよ。</p>`}
 
