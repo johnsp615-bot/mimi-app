@@ -1,0 +1,8 @@
+*.zip
+mimi-backup-*.json
+*.log
+.DS_Store
+.netlify/
+.env
+.env.*
+node_modules/
